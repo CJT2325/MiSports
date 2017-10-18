@@ -146,10 +146,11 @@ public class ConnectView extends View {
         sweepGradient6 = new SweepGradient(centerX_circle, center_viewY, colors6, null);
         sweepGradient7 = new SweepGradient(centerX_circle, center_viewY, colors7, null);
 
-        progressRectF = new RectF(center_viewX - radius + 40, center_viewY - radius + 40, center_viewX +
-                radius - 40,
-                center_viewY +
-                        radius - 40);
+        progressRectF = new RectF(
+                center_viewX - radius + radius*0.2f,
+                center_viewY - radius + radius*0.2f,
+                center_viewX + radius - radius*0.2f,
+                center_viewY + radius - radius*0.2f);
 
         initView();
         initAnim();
@@ -168,7 +169,7 @@ public class ConnectView extends View {
         for (int i = 0; i < 40; i++) {
             dotList.add(new Dot(
                     random.nextInt((int)(radius*0.8)) + 20,
-                    random.nextInt((int)(radius*0.1)) + 1,
+                    random.nextInt((int)(radius*0.05)) + 1,
                     random.nextInt(100) + 155,
                     center_viewX + random.nextInt((int) (radius*0.1)) - (int) (radius*0.1)/2,
                     center_viewY + random.nextInt((int) (radius*0.1)) - (int) (radius*0.1)/2,
@@ -245,23 +246,23 @@ public class ConnectView extends View {
             mPaint.setColor(0xffffffff);
             mPaint.setShader(sweepGradient5);
             canvas.drawOval(
-                    centerX_circle - radius_circle - 10,
+                    centerX_circle - radius_circle - radius*0.02f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + 10,
+                    centerX_circle + radius_circle + radius*0.02f,
                     centerY_circle + radius_circle,
                     mPaint);
             mPaint.setShader(sweepGradient6);
             canvas.drawOval(
-                    centerX_circle - radius_circle - 20,
+                    centerX_circle - radius_circle - radius*0.04f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + 20,
+                    centerX_circle + radius_circle + radius*0.04f,
                     centerY_circle + radius_circle,
                     mPaint);
             mPaint.setShader(sweepGradient7);
             canvas.drawOval(
-                    centerX_circle - radius_circle - 30,
+                    centerX_circle - radius_circle - radius*0.06f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + 30,
+                    centerX_circle + radius_circle + radius*0.06f,
                     centerY_circle + radius_circle,
                     mPaint);
 
@@ -315,8 +316,8 @@ public class ConnectView extends View {
                 set.cancel();
                 running = true;
                 showCircle = false;
-                progressRectF.top = getHeight() / 2 - radius + 40;
-                progressRectF.bottom = getHeight() / 2 + radius - 40;
+                progressRectF.top = getHeight() / 2 - radius + radius*0.2f;
+                progressRectF.bottom = getHeight() / 2 + radius - radius*0.2f;
                 textRect.top = getHeight() / 2 - radius;
                 textRect.bottom = getHeight() / 2 + radius;
                 textRect2.top = getHeight() / 2 + radius * 0.1f;
@@ -404,8 +405,8 @@ public class ConnectView extends View {
 
                 if (animation.getCurrentPlayTime() >= 300) {
                     showCircle = true;
-                    progressRectF.top = (int) animation.getAnimatedValue() - radius + 40;
-                    progressRectF.bottom = (int) animation.getAnimatedValue() + radius - 40;
+                    progressRectF.top = (int) animation.getAnimatedValue() - radius + radius*0.2f;
+                    progressRectF.bottom = (int) animation.getAnimatedValue() + radius - radius*0.2f;
                 }
             }
         });

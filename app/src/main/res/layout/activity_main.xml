@@ -15,7 +15,7 @@
     <com.cjt2325.misports.ConnectView
         android:layout_centerHorizontal="true"
         android:id="@+id/connectview"
-        android:layout_width="300dp"
+        android:layout_width="400dp"
         android:layout_height="match_parent" />
 
     <Switch
