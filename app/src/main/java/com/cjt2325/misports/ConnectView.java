@@ -12,7 +12,9 @@ import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
+import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,10 +40,11 @@ public class ConnectView extends View {
     int[] colors = {0x00ffffff, 0xffffffff, 0xffffffff};
     int[] colors2 = {0x00ffffff, 0x00ffffff, 0xffffffff, 0xffffffff};
     int[] colors3 = {0x00ffffff, 0x00ffffff, 0x00ffffff, 0xffffffff, 0xffffffff};
-    int[] colors4 = {0xbbffffff, 0x88ffffff, 0x44ffffff, 0x88ffffff, 0xbbffffff};
+    int[] colors4 = {0x66ffffff, 0xaaffffff, 0xffffffff, 0xaaffffff, 0x66ffffff};
 
-//    int[] colors5 = {0x00ffffff, 0x00ffffff, 0x00ffffff, 0xffffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff};
-        int[] colors5 = {0x44ffffff, 0x77ffffff, 0xaaffffff, 0xaaffffff, 0x77ffffff, 0x44ffffff};
+    int[] colors5 = {0x00ffffff, 0x00ffffff, 0xaaffffff, 0x00ffffff, 0x00ffffff};
+    int[] colors6 = {0x00ffffff, 0x00ffffff, 0x66ffffff, 0x00ffffff, 0x00ffffff};
+    int[] colors7 = {0x00ffffff, 0x00ffffff, 0x22ffffff, 0x00ffffff, 0x00ffffff};
     SweepGradient sweepGradient;
     SweepGradient sweepGradient2;
     SweepGradient sweepGradient3;
@@ -137,9 +140,9 @@ public class ConnectView extends View {
         sweepGradient3 = new SweepGradient(center_viewX, center_viewY, colors3, null);
         sweepGradient4 = new SweepGradient(center_viewX, center_viewY, colors4, null);
 
-        sweepGradient5 = new SweepGradient(centerX_circle, center_viewY - 15, colors5, null);
-        sweepGradient6 = new SweepGradient(centerX_circle, center_viewY - 18, colors5, null);
-        sweepGradient7 = new SweepGradient(centerX_circle, center_viewY - 21, colors5, null);
+        sweepGradient5 = new SweepGradient(centerX_circle, center_viewY, colors5, null);
+        sweepGradient6 = new SweepGradient(centerX_circle, center_viewY, colors6, null);
+        sweepGradient7 = new SweepGradient(centerX_circle, center_viewY, colors7, null);
 
         progressRectF = new RectF(center_viewX - radius + 40, center_viewY - radius + 40, center_viewX +
                 radius - 40,
@@ -174,6 +177,7 @@ public class ConnectView extends View {
     boolean running = true;
     boolean showCircle = false;
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -225,15 +229,31 @@ public class ConnectView extends View {
 
             mPaint.reset();
             mPaint.setAntiAlias(true);
-            mPaint.setStrokeWidth(20);
+            mPaint.setStrokeWidth(24);
 
             mPaint.setStyle(Paint.Style.STROKE);
+            mPaint.setColor(0xffffffff);
             mPaint.setShader(sweepGradient5);
-            canvas.drawCircle(centerX_circle, centerY_circle - 2, radius_circle - 2, mPaint);
+            canvas.drawOval(
+                    centerX_circle - radius_circle - 10,
+                    centerY_circle - radius_circle,
+                    centerX_circle + radius_circle + 10,
+                    centerY_circle + radius_circle,
+                    mPaint);
             mPaint.setShader(sweepGradient6);
-            canvas.drawCircle(centerX_circle, centerY_circle - 4, radius_circle - 4, mPaint);
-//            mPaint.setShader(sweepGradient7);
-            canvas.drawCircle(centerX_circle, centerY_circle - 5, radius_circle - 6, mPaint);
+            canvas.drawOval(
+                    centerX_circle - radius_circle - 20,
+                    centerY_circle - radius_circle,
+                    centerX_circle + radius_circle + 20,
+                    centerY_circle + radius_circle,
+                    mPaint);
+            mPaint.setShader(sweepGradient7);
+            canvas.drawOval(
+                    centerX_circle - radius_circle - 30,
+                    centerY_circle - radius_circle,
+                    centerX_circle + radius_circle + 30,
+                    centerY_circle + radius_circle,
+                    mPaint);
 
             mPaint.reset();
             mPaint.setAntiAlias(true);
@@ -276,6 +296,7 @@ public class ConnectView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 startAnimation();
+//                invalidate();
 //                radius_circle += 20;
 //                centerY_circle -= 40;
 //                a = true;
