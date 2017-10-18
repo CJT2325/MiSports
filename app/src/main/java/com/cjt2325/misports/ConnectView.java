@@ -285,6 +285,7 @@ public class ConnectView extends View {
 //                oval.bottom--;
                 break;
             case MotionEvent.ACTION_UP:
+                set.cancel();
                 running = true;
                 showCircle = false;
                 progressRectF.top = getHeight() / 2 - radius + 40;
@@ -296,9 +297,6 @@ public class ConnectView extends View {
                 textRect2.top = getHeight() / 2 + radius * 0.1f;
                 textRect2.bottom = getHeight() / 2 + radius * 0.6f;
 
-//                radius_circle -= 20;
-//                centerY_circle += 40;
-//                a = false;
                 break;
         }
         return true;
