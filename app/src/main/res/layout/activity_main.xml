@@ -13,6 +13,22 @@
     tools:context="com.cjt2325.misports.MainActivity">
 
     <com.cjt2325.misports.ConnectView
+        android:layout_centerHorizontal="true"
+        android:id="@+id/connectview"
+        android:layout_width="300dp"
+        android:layout_height="match_parent" />
+
+    <Switch
+        android:layout_centerHorizontal="true"
+        android:id="@+id/btn_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <SeekBar
+        android:max="10"
+        android:id="@+id/bar_seek"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btn_switch"
+        android:layout_marginTop="16dp" />
 </RelativeLayout>
