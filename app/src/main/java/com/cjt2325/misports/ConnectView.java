@@ -1,5 +1,7 @@
 package com.cjt2325.misports;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -18,6 +20,7 @@ import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +79,9 @@ public class ConnectView extends View {
     private boolean isFollow = false;
     //转动速度
     private int speed = 1;
+    //进度
+    private int oldprogress = 0;
+    private int newprogress = 0;
     //虚线
     PathEffect effects = new DashPathEffect(new float[]{4, 4}, 10);
 
@@ -180,8 +186,7 @@ public class ConnectView extends View {
         if (running) {
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setColor(Color.WHITE);
-            mPaint.setAlpha(random.nextInt(55) + 200);
-            canvas.drawCircle(center_viewX, center_viewY, random.nextInt((int) (radius * 0.07)), mPaint);
+            canvas.drawCircle(center_viewX, center_viewY, (float) (radius * 0.07), mPaint);
 
             mPaint.setAlpha(255);
             mPaint.setStyle(Paint.Style.STROKE);
@@ -263,9 +268,11 @@ public class ConnectView extends View {
                 mPaint.setStrokeCap(Paint.Cap.ROUND);
                 mPaint.setStrokeWidth(radius * 0.02f);
                 mPath.reset();
-                mPath.addArc(progressRectF, -90, 180);
-                canvas.drawPath(mPath, mPaint);
-                calculateItemPositions(canvas, mPath);
+                mPath.addArc(progressRectF, -90, oldprogress);
+                if (newprogress > 0) {
+                    canvas.drawPath(mPath, mPaint);
+                    calculateItemPositions(canvas, mPath);
+                }
             }
         }
         mPaint.setShader(null);
@@ -357,10 +364,13 @@ public class ConnectView extends View {
 
     private ValueAnimator radiusAnim;
     private ValueAnimator verticalAnim;
+    private ValueAnimator progressAnim;
     private AnimatorSet set;
 
     private void initAnim() {
         set = new AnimatorSet();
+
+
         radiusAnim = ValueAnimator.ofInt(radius_circle, radius_circle + (int) (radius_circle * 0.2), radius_circle);
         radiusAnim.setDuration(300);
         radiusAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -390,6 +400,22 @@ public class ConnectView extends View {
             }
         });
         set.playTogether(radiusAnim, verticalAnim);
+        set.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                progressAnim = ValueAnimator.ofInt(oldprogress, newprogress);
+                progressAnim.setDuration(400);
+                progressAnim.setInterpolator(new DecelerateInterpolator());
+                progressAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        oldprogress = (int) animation.getAnimatedValue();
+                    }
+                });
+                progressAnim.start();
+            }
+        });
     }
 
     public void startAnimation() {
@@ -415,5 +441,9 @@ public class ConnectView extends View {
 
     public void setSpeed(int speed) {
         this.speed = speed < 0 ? 0 : speed;
+    }
+
+    public void setProgress(int progress) {
+        this.newprogress = (int) (360 * (progress / 100.0)) == 360 ? 359 : (int) (360 * (progress / 100.0));
     }
 }
