@@ -12,7 +12,7 @@ import java.util.Random;
 
 public class Dot {
     //角度范围
-    public static final int ANGLE_RANGE = 40;
+    public static final int ANGLE_RANGE = 60;
     //颜色
     public static final int COLOR = 0xffffffff;
     //时间

@@ -166,7 +166,7 @@ public class ConnectView extends View {
         for (int i = 0; i < 40; i++) {
             dotList.add(new Dot(
                     random.nextInt((int) (radius * 0.8)) + 20,
-                    random.nextInt((int) (radius * 0.05)) + 1,
+                    random.nextInt((int) (radius * 0.07)) + 1,
                     random.nextInt(100) + 155,
                     center_viewX + random.nextInt((int) (radius * 0.1)) - (int) (radius * 0.1) / 2,
                     center_viewY + random.nextInt((int) (radius * 0.1)) - (int) (radius * 0.1) / 2,
@@ -186,7 +186,8 @@ public class ConnectView extends View {
         if (running) {
             mPaint.setStyle(Paint.Style.FILL);
             mPaint.setColor(Color.WHITE);
-            canvas.drawCircle(center_viewX, center_viewY, (float) (radius * 0.07), mPaint);
+            mPaint.setAlpha(205);
+            canvas.drawCircle(center_viewX, center_viewY, (float) (radius * 0.05), mPaint);
 
             mPaint.setAlpha(255);
             mPaint.setStyle(Paint.Style.STROKE);
