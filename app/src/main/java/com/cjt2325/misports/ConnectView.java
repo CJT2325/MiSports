@@ -3,24 +3,19 @@ package com.cjt2325.misports;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathEffect;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
+import android.graphics.PathMeasure;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -33,47 +28,54 @@ import java.util.Random;
  */
 
 public class ConnectView extends View {
-    Paint mPaint;
+    //画笔
+    private Paint mPaint;
+    private Path mPath;
+    //圆点集合
+    private List<Dot> dotList;
 
-    List<Dot> dotList;
-
-    RectF oval, oval2, oval3, oval4, oval5, oval6, oval7;
+    private RectF[] tailRectFs;
+    private SweepGradient[] sweepGradients;
+    private RectF centerRectF;
+    //    , oval2, oval3, oval4, oval5, oval6, oval7;
     RectF textRect, textRect2;
     RectF iconRect;
     RectF progressRectF;
-    int[] colors = {0x00ffffff, 0xffffffff, 0xffffffff};
-    int[] colors2 = {0x00ffffff, 0x00ffffff, 0xffffffff, 0xffffffff};
-    int[] colors3 = {0x00ffffff, 0x00ffffff, 0x00ffffff, 0xffffffff, 0xffffffff};
-    int[] colors4 = {0x66ffffff, 0xaaffffff, 0xffffffff, 0xaaffffff, 0x66ffffff};
+    int[][] colors = {
+            {0x00ffffff, 0xaaffffff},
+            {0x00ffffff, 0x00ffffff, 0xffffffff, 0xffffffff},
+            {0x00ffffff, 0x00ffffff, 0x00ffffff, 0xddffffff, 0xeeffffff},
+    };
 
+    int[] colors4 = {0x66ffffff, 0xaaffffff, 0xffffffff, 0xaaffffff, 0x66ffffff};
     int[] colors5 = {0x00ffffff, 0x00ffffff, 0xaaffffff, 0x00ffffff, 0x00ffffff};
     int[] colors6 = {0x00ffffff, 0x00ffffff, 0x66ffffff, 0x00ffffff, 0x00ffffff};
     int[] colors7 = {0x00ffffff, 0x00ffffff, 0x22ffffff, 0x00ffffff, 0x00ffffff};
-    SweepGradient sweepGradient;
-    SweepGradient sweepGradient2;
-    SweepGradient sweepGradient3;
 
-    SweepGradient sweepGradient4;
-    SweepGradient sweepGradient5, sweepGradient6, sweepGradient7;
 
+    SweepGradient sweepGradient4, sweepGradient5, sweepGradient6, sweepGradient7;
+
+    //View的中心坐标
     private float center_viewX;
     private float center_viewY;
-
+    //半径
     private int radius = 200;
     private int radius_circle = 200;
+    //连接成功圆的中心坐标
     private int centerX_circle;
     private int centerY_circle;
-
+    //转动角度
     private int angle = 0;
-    Random random = new Random();
+    //随机数
+    private Random random = new Random();
 
     private String text = "2325";
     private String text2 = "1.5公里 | 34千卡";
 
     //小圆点是否跟随转动
     private boolean isFollow = false;
+    //转动速度
     private int speed = 1;
-
     //虚线
     PathEffect effects = new DashPathEffect(new float[]{4, 4}, 10);
 
@@ -87,14 +89,16 @@ public class ConnectView extends View {
 
     public ConnectView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        mPath = new Path();
+        tailRectFs = new RectF[10];
+        sweepGradients = new SweepGradient[10];
+
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         radius = radius_circle = (int) (getWidth() < getHeight() ? getWidth() * 0.4f : getHeight() * 0.4);
-
-        Log.i("CJT","sdf = "+radius);
 
         center_viewX = getWidth() / 2;
         center_viewY = getHeight() / 2;
@@ -114,43 +118,30 @@ public class ConnectView extends View {
                 (int) (center_viewX + radius),
                 (int) (center_viewY + radius * 0.6));
         iconRect = new RectF(0, 0, 100, 100);
-        int offset = (int) (radius*0.05);
-        oval = new RectF(center_viewX - radius, center_viewY - radius, center_viewX + radius, center_viewY + radius);
-        oval2 = new RectF(center_viewX - radius + getRandom(offset), center_viewY - radius - getRandom(offset), center_viewX +
-                radius +
-                getRandom(offset), center_viewY + radius + getRandom(offset));
-        oval4 = new RectF(center_viewX - radius + getRandom(offset), center_viewY - radius + getRandom(offset), center_viewX +
-                radius -
-                getRandom(offset), center_viewY + radius -
-                getRandom(offset));
-        oval3 = new RectF(center_viewX - radius - getRandom(offset), center_viewY - radius - getRandom(offset), center_viewX +
-                radius +
-                getRandom(offset), center_viewY + radius + getRandom(offset));
-        oval5 = new RectF(center_viewX - radius - getRandom(offset), center_viewY - radius - getRandom(offset), center_viewX +
-                radius +
-                getRandom(offset), center_viewY + radius +
-                getRandom(offset));
-        oval6 = new RectF(center_viewX - radius - getRandom(offset), center_viewY - radius - getRandom(offset), center_viewX +
-                radius +
-                getRandom(offset), center_viewY + radius +
-                getRandom(offset));
-        oval7 = new RectF(center_viewX - radius - getRandom(offset), center_viewY - radius - getRandom(offset), center_viewX +
-                radius +
-                getRandom(offset), center_viewY + radius +
-                getRandom(offset));
-        sweepGradient = new SweepGradient(center_viewX, center_viewY, colors, null);
-        sweepGradient2 = new SweepGradient(center_viewX, center_viewY, colors2, null);
-        sweepGradient3 = new SweepGradient(center_viewX, center_viewY, colors3, null);
-        sweepGradient4 = new SweepGradient(center_viewX, center_viewY, colors4, null);
+        int offset = (int) (radius * 0.05);
+
+        for (int i = 0; i < tailRectFs.length; i++) {
+            tailRectFs[i] = new RectF(center_viewX - radius + getRandom(offset), center_viewY - radius + getRandom
+                    (offset),
+                    center_viewX + radius + getRandom(offset), center_viewY + radius + getRandom(offset));
+        }
+        for (int i = 0; i < sweepGradients.length; i++) {
+            sweepGradients[i] = new SweepGradient(center_viewX, center_viewY, colors[i % 3], null);
+        }
+
+        centerRectF = new RectF(center_viewX - radius, center_viewY - radius, center_viewX + radius, center_viewY +
+                radius);
+
+        sweepGradient4 = new SweepGradient(centerX_circle, center_viewY, colors4, null);
         sweepGradient5 = new SweepGradient(centerX_circle, center_viewY, colors5, null);
         sweepGradient6 = new SweepGradient(centerX_circle, center_viewY, colors6, null);
         sweepGradient7 = new SweepGradient(centerX_circle, center_viewY, colors7, null);
 
         progressRectF = new RectF(
-                center_viewX - radius + radius*0.2f,
-                center_viewY - radius + radius*0.2f,
-                center_viewX + radius - radius*0.2f,
-                center_viewY + radius - radius*0.2f);
+                center_viewX - radius + radius * 0.2f,
+                center_viewY - radius + radius * 0.2f,
+                center_viewX + radius - radius * 0.2f,
+                center_viewY + radius - radius * 0.2f);
 
         initView();
         initAnim();
@@ -168,11 +159,11 @@ public class ConnectView extends View {
         dotList = new ArrayList<>();
         for (int i = 0; i < 40; i++) {
             dotList.add(new Dot(
-                    random.nextInt((int)(radius*0.8)) + 20,
-                    random.nextInt((int)(radius*0.05)) + 1,
+                    random.nextInt((int) (radius * 0.8)) + 20,
+                    random.nextInt((int) (radius * 0.05)) + 1,
                     random.nextInt(100) + 155,
-                    center_viewX + random.nextInt((int) (radius*0.1)) - (int) (radius*0.1)/2,
-                    center_viewY + random.nextInt((int) (radius*0.1)) - (int) (radius*0.1)/2,
+                    center_viewX + random.nextInt((int) (radius * 0.1)) - (int) (radius * 0.1) / 2,
+                    center_viewY + random.nextInt((int) (radius * 0.1)) - (int) (radius * 0.1) / 2,
                     angle)
             );
         }
@@ -187,40 +178,25 @@ public class ConnectView extends View {
         super.onDraw(canvas);
 
         if (running) {
-            mPaint.setAlpha(255);
             mPaint.setStyle(Paint.Style.FILL);
-            mPaint.setColor(0xddffffff);
-            canvas.drawCircle(center_viewX, center_viewY, 13, mPaint);
+            mPaint.setColor(Color.WHITE);
+            mPaint.setAlpha(random.nextInt(55) + 200);
+            canvas.drawCircle(center_viewX, center_viewY, random.nextInt((int) (radius * 0.07)), mPaint);
 
+            mPaint.setAlpha(255);
             mPaint.setStyle(Paint.Style.STROKE);
             canvas.save();
-
             canvas.rotate(angle, getWidth() / 2, getHeight() / 2);
-            mPaint.setStrokeWidth(3);
-            mPaint.setShader(sweepGradient);
-            canvas.drawArc(oval, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(2);
-            canvas.drawArc(oval2, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(1);
-            mPaint.setShader(sweepGradient2);
-            canvas.drawArc(oval3, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(3);
-            canvas.drawArc(oval4, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(2);
-            mPaint.setShader(sweepGradient3);
-            canvas.drawArc(oval5, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(2);
-            mPaint.setShader(sweepGradient2);
-            canvas.drawArc(oval6, 0, -360, false, mPaint);
-            mPaint.setStrokeWidth(2);
-            mPaint.setShader(sweepGradient);
-            canvas.drawArc(oval7, 0, -360, false, mPaint);
-
+            for (int i = 0; i < tailRectFs.length; i++) {
+                mPaint.setStrokeWidth(i % 3 + 1);
+                mPaint.setShader(sweepGradients[i]);
+                canvas.drawArc(tailRectFs[i], 0, -360, false, mPaint);
+            }
             if (isFollow) {
                 //跟随转
                 for (Dot dot : dotList) {
                     if (!dot.draw(canvas, mPaint)) {
-                        dot.reset(oval.right, oval.top + radius, 0);
+                        dot.reset(centerRectF.right, centerRectF.top + radius, 0);
                     }
                 }
             }
@@ -235,41 +211,40 @@ public class ConnectView extends View {
             }
         } else {
             canvas.save();
-
             canvas.rotate(angle, centerX_circle, centerY_circle);
 
             mPaint.reset();
             mPaint.setAntiAlias(true);
-            mPaint.setStrokeWidth(radius*0.1f);
+            mPaint.setStrokeWidth(radius * 0.15f);
 
             mPaint.setStyle(Paint.Style.STROKE);
             mPaint.setColor(0xffffffff);
             mPaint.setShader(sweepGradient5);
             canvas.drawOval(
-                    centerX_circle - radius_circle - radius*0.02f,
+                    centerX_circle - radius_circle - radius * 0.02f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + radius*0.02f,
+                    centerX_circle + radius_circle + radius * 0.02f,
                     centerY_circle + radius_circle,
                     mPaint);
             mPaint.setShader(sweepGradient6);
             canvas.drawOval(
-                    centerX_circle - radius_circle - radius*0.04f,
+                    centerX_circle - radius_circle - radius * 0.04f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + radius*0.04f,
+                    centerX_circle + radius_circle + radius * 0.04f,
                     centerY_circle + radius_circle,
                     mPaint);
             mPaint.setShader(sweepGradient7);
             canvas.drawOval(
-                    centerX_circle - radius_circle - radius*0.06f,
+                    centerX_circle - radius_circle - radius * 0.06f,
                     centerY_circle - radius_circle,
-                    centerX_circle + radius_circle + radius*0.06f,
+                    centerX_circle + radius_circle + radius * 0.06f,
                     centerY_circle + radius_circle,
                     mPaint);
 
             mPaint.reset();
             mPaint.setAntiAlias(true);
             mPaint.setShader(sweepGradient4);
-            mPaint.setStrokeWidth(radius*0.1f);
+            mPaint.setStrokeWidth(radius * 0.15f);
             mPaint.setStyle(Paint.Style.STROKE);
             canvas.drawCircle(centerX_circle, centerY_circle, radius_circle, mPaint);
 
@@ -278,15 +253,19 @@ public class ConnectView extends View {
             if (showCircle) {
                 mPaint.reset();
                 mPaint.setAntiAlias(true);
-                mPaint.setStrokeWidth(radius*0.015f);
+                mPaint.setStrokeWidth(radius * 0.015f);
                 mPaint.setColor(0xffffffff);
                 mPaint.setStyle(Paint.Style.STROKE);
                 mPaint.setPathEffect(effects);
-                canvas.drawCircle(getWidth() / 2, centerY_circle, radius - radius*0.2f, mPaint);
+                canvas.drawCircle(getWidth() / 2, centerY_circle, radius - radius * 0.2f, mPaint);
 
                 mPaint.setPathEffect(null);
-                mPaint.setStrokeWidth(radius*0.02f);
-                canvas.drawArc(progressRectF, -90, 270, false, mPaint);
+                mPaint.setStrokeCap(Paint.Cap.ROUND);
+                mPaint.setStrokeWidth(radius * 0.02f);
+                mPath.reset();
+                mPath.addArc(progressRectF, -90, 180);
+                canvas.drawPath(mPath, mPaint);
+                calculateItemPositions(canvas, mPath);
             }
         }
         mPaint.setShader(null);
@@ -316,8 +295,8 @@ public class ConnectView extends View {
                 set.cancel();
                 running = true;
                 showCircle = false;
-                progressRectF.top = getHeight() / 2 - radius + radius*0.2f;
-                progressRectF.bottom = getHeight() / 2 + radius - radius*0.2f;
+                progressRectF.top = getHeight() / 2 - radius + radius * 0.2f;
+                progressRectF.bottom = getHeight() / 2 + radius - radius * 0.2f;
                 textRect.top = getHeight() / 2 - radius;
                 textRect.bottom = getHeight() / 2 + radius;
                 textRect2.top = getHeight() / 2 + radius * 0.1f;
@@ -382,7 +361,7 @@ public class ConnectView extends View {
 
     private void initAnim() {
         set = new AnimatorSet();
-        radiusAnim = ValueAnimator.ofInt(radius_circle, radius_circle+(int)(radius_circle*0.2), radius_circle);
+        radiusAnim = ValueAnimator.ofInt(radius_circle, radius_circle + (int) (radius_circle * 0.2), radius_circle);
         radiusAnim.setDuration(300);
         radiusAnim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -405,8 +384,8 @@ public class ConnectView extends View {
 
                 if (animation.getCurrentPlayTime() >= 300) {
                     showCircle = true;
-                    progressRectF.top = (int) animation.getAnimatedValue() - radius + radius*0.2f;
-                    progressRectF.bottom = (int) animation.getAnimatedValue() + radius - radius*0.2f;
+                    progressRectF.top = (int) animation.getAnimatedValue() - radius + radius * 0.2f;
+                    progressRectF.bottom = (int) animation.getAnimatedValue() + radius - radius * 0.2f;
                 }
             }
         });
@@ -418,37 +397,16 @@ public class ConnectView extends View {
         set.start();
     }
 
-    public void drawWatchIcon(Paint mPaint, Canvas canvas, RectF rectF) {
-        mPaint.reset();
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(Color.WHITE);
+    private void calculateItemPositions(Canvas canvas, Path path) {
+        PathMeasure measure = new PathMeasure(path, false);
+        float[] endPoint = new float[]{0f, 0f};
+        measure.getPosTan(measure.getLength(), endPoint, null);
         mPaint.setStyle(Paint.Style.FILL);
-        canvas.drawRect(
-                (rectF.right - rectF.left) * 0.28f,
-                rectF.top,
-                (rectF.right - rectF.left) * 0.72f,
-                rectF.bottom,
-                mPaint
-        );
-        canvas.drawCircle(
-                (rectF.right - rectF.left) * 0.5f + rectF.left,
-                (rectF.right - rectF.left) * 0.5f + rectF.top,
-                (rectF.right - rectF.left) * 0.42f,
-                mPaint
-        );
-        mPaint.reset();
-        mPaint.setAntiAlias(true);
-        mPaint.setAlpha(0xFFFFFFFF);//transperent color
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));//clear the draw
+        canvas.drawCircle(endPoint[0], endPoint[1], radius * 0.04f, mPaint);
+    }
 
-        canvas.drawCircle(
-                (rectF.right - rectF.left) * 0.5f + rectF.left,
-                (rectF.right - rectF.left) * 0.5f + rectF.top,
-                (rectF.right - rectF.left) * 0.36f,
-                mPaint
-        );
-        mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        mPaint.reset();
+    public void setText(String text) {
+        this.text = text;
     }
 
     public void setFollow(boolean isFollow) {
